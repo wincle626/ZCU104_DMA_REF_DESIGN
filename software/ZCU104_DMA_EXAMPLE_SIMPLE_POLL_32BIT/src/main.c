@@ -231,8 +231,8 @@ static void Uart550_Setup(void)
 *
 *
 ******************************************************************************/
-u8 *TxBufferPtr;
-u8 *RxBufferPtr;
+float *TxBufferPtr;
+float *RxBufferPtr;
 void *TxBufferPtr_vaddr;
 void *RxBufferPtr_vaddr;
 void *TxBufferPtr_paddr;
@@ -243,7 +243,7 @@ int XAxiDma_SimplePollExample(u16 DeviceId)
 	int Status;
 	int Tries = NUMBER_OF_TRANSFERS;
 	int Index;
-	u8 Value;
+	float Value;
 
 //	TxBufferPtr = (u8 *)TX_BUFFER_BASE ;
 //	RxBufferPtr = (u8 *)RX_BUFFER_BASE;
@@ -288,13 +288,12 @@ int XAxiDma_SimplePollExample(u16 DeviceId)
 	XAxiDma_IntrDisable(&AxiDma, XAXIDMA_IRQ_ALL_MASK,
 						XAXIDMA_DMA_TO_DEVICE);
 
-	Value = TEST_START_VALUE;
+	Value = 0;
 
 	for(Index = 0; Index < MAX_PKT_LEN; Index ++) {
 			TxBufferPtr[Index] = Value;
-
-			Value = (Value + 1) & 0xFF;
-			printf("Value[%d]=%x\n", Index, Value);
+			printf("Value[%d]=%f\n", Index, Value);
+			Value = (Value + 1);
 	}
 	/* Flush the SrcBuffer before the DMA transfer, in case the Data Cache
 	 * is enabled
@@ -308,7 +307,7 @@ int XAxiDma_SimplePollExample(u16 DeviceId)
 
 
 		Status = XAxiDma_SimpleTransfer(&AxiDma,(UINTPTR) RxBufferPtr_paddr,
-					MAX_PKT_LEN, XAXIDMA_DEVICE_TO_DMA);
+					MAX_PKT_LEN*sizeof(float), XAXIDMA_DEVICE_TO_DMA);
 
 		if (Status != XST_SUCCESS) {
 			return XST_FAILURE;
@@ -317,7 +316,7 @@ int XAxiDma_SimplePollExample(u16 DeviceId)
 		}
 
 		Status = XAxiDma_SimpleTransfer(&AxiDma,(UINTPTR) TxBufferPtr_paddr,
-					MAX_PKT_LEN, XAXIDMA_DMA_TO_DEVICE);
+					MAX_PKT_LEN*sizeof(float), XAXIDMA_DMA_TO_DEVICE);
 
 		if (Status != XST_SUCCESS) {
 			return XST_FAILURE;
@@ -361,12 +360,12 @@ int XAxiDma_SimplePollExample(u16 DeviceId)
 ******************************************************************************/
 static int CheckData(void)
 {
-	u8 *RxPacket;
+	float *RxPacket;
 	int Index = 0;
-	u8 Value;
+	float Value;
 
-	RxPacket = (u8 *) RxBufferPtr;
-	Value = TEST_START_VALUE;
+	RxPacket = (float *) RxBufferPtr;
+	Value = 0;
 
 	/* Invalidate the DestBuffer before receiving the data, in case the
 	 * Data Cache is enabled
@@ -376,14 +375,14 @@ static int CheckData(void)
 #endif
 
 	for(Index = 0; Index < MAX_PKT_LEN; Index++) {
-		if (RxPacket[Index] != Value) {
-			printf("Data error %d: %x/%x\r\n",
-			Index, (unsigned int)RxPacket[Index],
-				(unsigned int)Value);
+		if ((RxPacket[Index]-Value)*(RxPacket[Index]-Value) > 0.0000001) {
+			printf("Data error %d: %f/%f\r\n",
+			Index, (float)RxPacket[Index],
+				(float)Value);
 
 			return XST_FAILURE;
 		}
-		Value = (Value + 1) & 0xFF;
+		Value = (Value + 1);
 	}
 
 	return XST_SUCCESS;

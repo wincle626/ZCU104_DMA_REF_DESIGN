@@ -382,6 +382,8 @@ static int CheckData(void)
 
 			return XST_FAILURE;
 		}
+		}
+		printf("Value[%d]=%f\n", Index, (float)RxPacket[Index]);
 		Value = (Value + 1);
 	}
 

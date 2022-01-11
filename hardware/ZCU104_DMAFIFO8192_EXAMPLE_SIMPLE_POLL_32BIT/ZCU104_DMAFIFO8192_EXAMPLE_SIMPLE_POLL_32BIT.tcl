@@ -219,7 +219,8 @@ proc create_root_design { parentCell } {
   set axis_data_fifo_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_data_fifo:2.0 axis_data_fifo_0 ]
   set_property -dict [ list \
    CONFIG.FIFO_DEPTH {8192} \
-   CONFIG.FIFO_MODE {2} \
+   CONFIG.FIFO_MODE {1} \
+   CONFIG.HAS_TLAST {1} \
    CONFIG.TDATA_NUM_BYTES {4} \
  ] $axis_data_fifo_0
 

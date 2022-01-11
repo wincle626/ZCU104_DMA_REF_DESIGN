@@ -1,2 +1,2 @@
    text	   data	    bss	    dec	    hex	filename
-  15807	    816	   2968	  19591	   4c87	ZCU104_DMAFIFO8192_EXAMPLE_SIMPLE_POLL_32BIT.elf
+  15864	    840	   2968	  19672	   4cd8	ZCU104_DMAFIFO8192_EXAMPLE_SIMPLE_POLL_32BIT.elf
